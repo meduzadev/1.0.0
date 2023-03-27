@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Presentation Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="step-container">
+        <div class="step-title" id="stepTitle"></div>
+        <div class="step-message" id="stepMessage"></div>
+    </div>
+    <div class="button-container">
+        <button class="button" id="previousButton" disabled>Previous</button>
+        <button class="button" id="nextButton">Next</button>
+        <button class="button" id="finishButton" hidden>Finish</button>
+    </div>
+    
+<script>
+$(document).ready(function() {
+    let currentIndex = 1;
+    let totalSteps = 0;
+
+    window.addEventListener('message', function(event) {
+        let data = event.data;
+
+        if (data.action === 'showTutorial') {
+            totalSteps = data.steps.length;
+            $('#stepTitle').text(data.steps[0].title);
+            $('#stepMessage').text(data.steps[0].message);
+        }
+
+        if (data.action === 'setStep') {
+            currentIndex = data.index;
+            $('#stepTitle').text(data.title);
+            $('#stepMessage').text(data.message);
+            $('#previousButton').prop('disabled', data.isFirst);
+            $('#nextButton').prop('disabled', data.isLast);
+            $('#finishButton').prop('hidden', !data.isLast);
+        }
+    });
+
+    $('#previousButton').click(function() {
+    $.post('http://oldtimes_tutorial/ previousStep', JSON.stringify({index: currentIndex}));
+});
+    
+    $('#nextButton').click(function() {
+    $.post('http://oldtimes_tutorial/nextStep', JSON.stringify({index: currentIndex}));
+});
+
+    $('#finishButton').click(function() {
+    $.post('http://oldtimes_tutorial/finishTutorial');
+});
+
+    // Notify the client-side script that the NUI has loaded
+    $.post('http://oldtimes_tutorial/loaded');
+});
+</script>      
+</body>
+</html>
